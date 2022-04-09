@@ -1,0 +1,12 @@
+name: SellMultiplier
+version: 1.0.0
+main: com.sellmultiplier.SellMultiplier
+author: bfrisco
+description: Sell Hand Multiplier
+api-version: 1.18
+depend: [Essentials]
+
+commands:
+  sellmultiplier:
+    description: Reloads configuration
+    usage: §7/sellmultiplier reload
