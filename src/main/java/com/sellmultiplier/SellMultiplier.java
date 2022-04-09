@@ -13,14 +13,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class SellMultiplier extends JavaPlugin implements Listener, CommandExecutor {
     private Set<String> multiplierPerms;
-    public static final HashMap<UUID, BigDecimal> aggregates = new HashMap<>();
+    public static final ConcurrentHashMap<UUID, BigDecimal> aggregates = new ConcurrentHashMap<>();
     public static Logger logger;
     public static FileConfiguration configuration;
 
