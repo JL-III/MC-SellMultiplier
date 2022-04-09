@@ -26,7 +26,7 @@ public class Notifier extends BukkitRunnable {
 
         BigDecimal aggregate = SellMultiplier.aggregates.get(player.getUniqueId());
         if (aggregate == null) {
-            SellMultiplier.logger.warning("Aggregate is null");
+            return;
         }
 
         message = String.format(message, perm.toUpperCase(Locale.ROOT), aggregate.setScale(2, RoundingMode.HALF_UP));
