@@ -29,6 +29,10 @@ public class Notifier extends BukkitRunnable {
             return;
         }
 
+        if (aggregate.setScale(2, RoundingMode.HALF_UP).compareTo(BigDecimal.ZERO) == 0) {
+            return;
+        }
+
         message = String.format(message, perm.toUpperCase(Locale.ROOT), aggregate.setScale(2, RoundingMode.HALF_UP));
         player.sendMessage(message);
         SellMultiplier.aggregates.remove(player.getUniqueId());
