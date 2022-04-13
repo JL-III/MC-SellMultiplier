@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,6 +53,9 @@ public class SellMultiplier extends JavaPlugin implements Listener, CommandExecu
             BigDecimal multipliedDiff = diff.multiply(multiplier.getValue());
             event.setNewBalance(event.getOldBalance().add(multipliedDiff));
             BigDecimal amountAdded = multipliedDiff.subtract(diff);
+
+            logger.info("sell-multiplier bonus of $" + amountAdded.setScale(2, RoundingMode.HALF_UP) +
+                    " applied for " + event.getPlayer().getName() + " (permission: " + multiplier.getKey().toUpperCase() + ")");
 
             if (!"default".equalsIgnoreCase(multiplier.getKey())) {
                 if (aggregates.containsKey(event.getPlayer().getUniqueId())) {
