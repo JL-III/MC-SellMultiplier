@@ -1,6 +1,7 @@
 package com.sellmultiplier.commands;
 
 import com.sellmultiplier.managers.ConfigManager;
+import com.sellmultiplier.managers.MultiplierManager;
 import com.sellmultiplier.managers.PermissionsManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

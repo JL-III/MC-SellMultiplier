@@ -42,6 +42,7 @@ public class ConfigManager {
     }
 
     public void reloadConfig() {
+        plugin.reloadConfig();
         this.sellMultipliers = plugin.getConfig().getConfigurationSection("sell-multipliers");
         this.message = plugin.getConfig().getString("message");
     }

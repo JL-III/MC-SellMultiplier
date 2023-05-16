@@ -25,11 +25,12 @@ public class SellMultiplier extends JavaPlugin {
     public void onEnable() {
         getConfig().options().copyDefaults();
         saveDefaultConfig();
+        reloadConfig();
+
         configManager = new ConfigManager(this);
         permissionsManager = new PermissionsManager(configManager);
         multiplierManager = new MultiplierManager(configManager, permissionsManager);
 
-        reloadConfig();
         permissionsManager.loadMultiplierPerms();
         Objects.requireNonNull(getCommand("sellmultiplier")).setExecutor(new AdminCommands(configManager, permissionsManager));
         Bukkit.getPluginManager().registerEvents(new UserBalanceEvent(this, configManager, multiplierManager), this);
