@@ -11,6 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,26 +38,21 @@ public class AdminCommands implements CommandExecutor {
         if (args.length == 0 || !"reload".equalsIgnoreCase(args[0])) {
             Set<PermissionAttachmentInfo> perms = player.getEffectivePermissions();
             GeneralUtils.log("Permissions for " + player.getName());
-
             // Regex pattern to match 'sell.multiplier.*'
             Pattern pattern = Pattern.compile("^sell\\.multiplier\\..*");
-
             // Counter for occurrences
             int count = 0;
             for (PermissionAttachmentInfo perm : perms) {
                 String permission = perm.getPermission();
                 GeneralUtils.log(permission);
-
                 // Check if permission matches pattern
                 Matcher matcher = pattern.matcher(permission);
                 if (matcher.find()) {
                     count++;
                 }
             }
-
             // Log the count
             GeneralUtils.log("Count of 'sell.multiplier.*' permissions: " + count);
-
             return false;
         }
 
