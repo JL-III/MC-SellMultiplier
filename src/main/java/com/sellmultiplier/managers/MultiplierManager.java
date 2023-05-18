@@ -54,8 +54,8 @@ public class MultiplierManager {
         return new Multiplier(key, value);
     }
 
-    public double getStackedMultiplier(Player player) {
-        double count = 0;
+    public Multiplier getStackedMultiplier(Player player) {
+        int count = 0;
         Pattern pattern = Pattern.compile("^sell\\.multiplier\\..*");
         for (PermissionAttachmentInfo perm : player.getEffectivePermissions()) {
             String permission = perm.getPermission();
@@ -68,7 +68,7 @@ public class MultiplierManager {
         }
         // Fetch the base multiplier from the config and adjust it
         double baseMultiplier = configManager.getStackingBaseValue() - 1;
-        return 1 + (count * baseMultiplier);
+        return new Multiplier(Integer.toString(count), (BigDecimal.valueOf(1 + (count * baseMultiplier))));
     }
 }
 

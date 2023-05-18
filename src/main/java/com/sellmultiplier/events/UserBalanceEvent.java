@@ -42,16 +42,16 @@ public class UserBalanceEvent implements Listener {
 
         if (configManager.getStackingEnabled()) {
             GeneralUtils.log("Stacking enabled");
-            double multiplier = multiplierManager.getStackedMultiplier(event.getPlayer());  // no division by 10 now
+            Multiplier multiplier = multiplierManager.getStackedMultiplier(event.getPlayer());
             BigDecimal diff = event.getNewBalance().subtract(event.getOldBalance());
-            if (BigDecimal.valueOf(multiplier).compareTo(BigDecimal.ONE) > 0 && diff.compareTo(BigDecimal.ZERO) > 0) {
-                BigDecimal multipliedDiff = diff.multiply(BigDecimal.valueOf(multiplier));
+            if (multiplier.getValue().compareTo(BigDecimal.ONE) > 0 && diff.compareTo(BigDecimal.ZERO) > 0) {
+                BigDecimal multipliedDiff = diff.multiply(multiplier.getValue());
                 event.setNewBalance(event.getOldBalance().add(multipliedDiff));
                 BigDecimal amountAdded = multipliedDiff.subtract(diff);
                 GeneralUtils.log("sell-multiplier bonus of $" + amountAdded.setScale(2, RoundingMode.HALF_UP) +
                         " applied for " + event.getPlayer().getName() + " (permission: " + multiplier + ")");
                 // If the multiplier key isn't "default"
-                if (multiplier > 0) {
+                if (multiplier.getValue().compareTo(BigDecimal.ZERO) > 0) {
                     // Check if the user's UUID is already in the aggregate map
                     if (aggregates.containsKey(event.getPlayer().getUniqueId())) {
                         // If yes, add the newly added amount to the aggregate amount for that user
@@ -64,7 +64,7 @@ public class UserBalanceEvent implements Listener {
                     }
 
                     // Create a new notifier task to notify the user and run it after a delay
-                    new Notifier(configManager, event.getPlayer(), Double.toString(multiplier)).runTaskLater(plugin, 1);
+                    new Notifier(configManager, event.getPlayer(), multiplier.getKey()).runTaskLater(plugin, 1);
                 }
             }
             return;
