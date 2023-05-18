@@ -41,10 +41,12 @@ public class AdminCommands implements CommandExecutor {
                 return true;
             }
         }
-
-        configManager.reloadConfig();
-        permissionsManager.loadMultiplierPerms();
-        player.sendMessage(ChatColor.GREEN + "Successfully reloaded sellmultiplier config");
-        return true;
+        if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
+            configManager.reloadConfig();
+            permissionsManager.loadMultiplierPerms();
+            player.sendMessage(ChatColor.GREEN + "Successfully reloaded sellmultiplier config");
+            return true;
+        }
+        return false;
     }
 }
