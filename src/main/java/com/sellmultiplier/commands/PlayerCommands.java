@@ -6,6 +6,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class PlayerCommands implements CommandExecutor {
     private MultiplierManager multiplierManager;
@@ -15,9 +16,14 @@ public class PlayerCommands implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
             return false;
+        }
+
+        if (!player.hasPermission("sell-multiplier.check.self")) {
+            player.sendMessage("No permission.");
+            return true;
         }
 
         if (args.length == 0) {
