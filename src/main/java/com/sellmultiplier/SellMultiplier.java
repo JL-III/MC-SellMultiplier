@@ -1,6 +1,7 @@
 package com.sellmultiplier;
 
 import com.sellmultiplier.commands.AdminCommands;
+import com.sellmultiplier.commands.PlayerCommands;
 import com.sellmultiplier.events.UserBalanceEvent;
 import com.sellmultiplier.managers.ConfigManager;
 import com.sellmultiplier.managers.MultiplierManager;
@@ -25,6 +26,7 @@ public class SellMultiplier extends JavaPlugin {
 
         permissionsManager.loadPerms();
         Objects.requireNonNull(getCommand("sellmultiplier")).setExecutor(new AdminCommands(configManager, permissionsManager));
+        Objects.requireNonNull(getCommand("multiplier")).setExecutor(new PlayerCommands(multiplierManager));
         Bukkit.getPluginManager().registerEvents(new UserBalanceEvent(this, configManager, multiplierManager), this);
     }
 

@@ -1,11 +1,11 @@
 package com.sellmultiplier.managers;
 
-import com.sellmultiplier.utils.GeneralUtils;
 import com.sellmultiplier.utils.Multiplier;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,22 +56,41 @@ public class MultiplierManager {
     }
 
     public Multiplier getStackedMultiplier(Player player) {
-        int count = 0;
-        Pattern pattern = Pattern.compile("^sell\\.multiplier\\..*");
+        Set<String> multiplierPermissions = getMultiplierPermissions(player);
+        // Fetch the base multiplier from the config and adjust it
+        BigDecimal baseMultiplier = BigDecimal.valueOf(configManager.getStackingBaseValue() - 1);
+        return new Multiplier(Integer.toString(multiplierPermissions.size()), BigDecimal.valueOf(1).add(BigDecimal.valueOf(multiplierPermissions.size()).multiply(baseMultiplier)));
+    }
+
+    public Set<String> getStringsForPlayerPermCheck(Player player) {
+        Set<String> result = new HashSet<>();
+        Set<String> multiplierPermissions = getMultiplierPermissions(player);
+
+        for (String permission : multiplierPermissions) {
+            // Add the permission suffix to the result set, with the first letter capitalized
+            String permissionSuffix = permission.substring("sell.multiplier.".length());
+            permissionSuffix = Character.toUpperCase(permissionSuffix.charAt(0)) + permissionSuffix.substring(1);
+            result.add(permissionSuffix);
+        }
+
+        return result;
+    }
+
+    private Set<String> getMultiplierPermissions(Player player) {
+        Set<String> multiplierPermissions = new HashSet<>();
+        Pattern pattern = Pattern.compile("^sell\\.multiplier\\.(.*)");
         Set<String> nonStackingMultipliers = configManager.getMultiplierNames();
 
-        for (PermissionAttachmentInfo perm : player.getEffectivePermissions()) {
+        for (PermissionAttachmentInfo perm : permissionsManager.getEffectivePermissions(player)) {
             String permission = perm.getPermission();
             // Check if permission matches pattern
             Matcher matcher = pattern.matcher(permission);
-            if (matcher.find() && !nonStackingMultipliers.contains(permission.substring("sell.multiplier.".length()))) {
-                GeneralUtils.log(permission);
-                count++;
+            if (matcher.find() && !nonStackingMultipliers.contains(matcher.group(1))) {
+                multiplierPermissions.add(permission);
             }
         }
-        // Fetch the base multiplier from the config and adjust it
-        double baseMultiplier = configManager.getStackingBaseValue() - 1;
-        return new Multiplier(Integer.toString(count), (BigDecimal.valueOf(1 + (count * baseMultiplier))));
+
+        return multiplierPermissions;
     }
 
 }

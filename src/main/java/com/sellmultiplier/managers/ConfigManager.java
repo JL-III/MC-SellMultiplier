@@ -22,14 +22,6 @@ public class ConfigManager {
         loadAndValidateConfig();
     }
 
-    public BigDecimal getMultiplierFromConfig(String name) {
-        return sellMultipliers.getOrDefault(name, BigDecimal.ONE);
-    }
-
-    public BigDecimal getStackingMultiplier() {
-        return BigDecimal.valueOf(baseValue);
-    }
-
     private void loadAndValidateConfig() {
         ConfigurationSection multiplierSection = plugin.getConfig().getConfigurationSection("sell-multipliers");
 
@@ -91,10 +83,11 @@ public class ConfigManager {
         return sellMultipliers;
     }
 
-    public Set<String> getMultiplierNames() {
-        return Collections.unmodifiableSet(sellMultipliers.keySet());
-    }
+    public Set<String> getMultiplierNames() { return Collections.unmodifiableSet(sellMultipliers.keySet()); }
 
+    public BigDecimal getMultiplierFromConfig(String name) { return sellMultipliers.getOrDefault(name, BigDecimal.ONE); }
+
+    public BigDecimal getStackingMultiplier() { return BigDecimal.valueOf(baseValue); }
 
     public ConfigurationSection getMultiplierStacking() {
         return multiplierStacking;
@@ -111,4 +104,5 @@ public class ConfigManager {
     public String getMessage() {
         return message;
     }
+
 }

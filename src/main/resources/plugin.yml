@@ -10,3 +10,6 @@ commands:
   sellmultiplier:
     description: Reloads configuration
     usage: §7/sellmultiplier reload
+  multiplier:
+    description: Gives player their sell hand multiplier
+    usage: §7/multiplier
