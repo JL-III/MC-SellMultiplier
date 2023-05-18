@@ -1,7 +1,7 @@
 package com.sellmultiplier.commands;
 
 import com.sellmultiplier.managers.MultiplierManager;
-import com.sellmultiplier.managers.PermissionsManager;
+import com.sellmultiplier.utils.GeneralUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 
 public class PlayerCommands implements CommandExecutor {
     private MultiplierManager multiplierManager;
-    
+
     public PlayerCommands(MultiplierManager multiplierManager) {
         this.multiplierManager = multiplierManager;
     }
@@ -21,9 +21,7 @@ public class PlayerCommands implements CommandExecutor {
         }
 
         if (args.length == 0) {
-            for (String s : multiplierManager.getStringsForPlayerPermCheck(player)) {
-                player.sendMessage(s);
-            }
+            GeneralUtils.sendPermissionMessage(player, multiplierManager.getStringsForPlayerPermCheck(player));
             return true;
         }
 
