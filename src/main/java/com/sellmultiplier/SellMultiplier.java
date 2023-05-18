@@ -25,7 +25,7 @@ public class SellMultiplier extends JavaPlugin {
         MultiplierManager multiplierManager = new MultiplierManager(configManager, permissionsManager);
 
         permissionsManager.loadPerms();
-        Objects.requireNonNull(getCommand("sellmultiplier")).setExecutor(new AdminCommands(configManager, permissionsManager));
+        Objects.requireNonNull(getCommand("sellmultiplier")).setExecutor(new AdminCommands(configManager, permissionsManager, multiplierManager));
         Objects.requireNonNull(getCommand("multiplier")).setExecutor(new PlayerCommands(multiplierManager));
         Bukkit.getPluginManager().registerEvents(new UserBalanceEvent(this, configManager, multiplierManager), this);
     }
