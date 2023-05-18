@@ -40,6 +40,13 @@ public class UserBalanceEvent implements Listener {
             return;
         }
 
+        if (configManager.getStackingEnabled()) {
+            GeneralUtils.log("Stacking enabled");
+            GeneralUtils.log("base-value: " + configManager.getStackingBaseValue());
+            GeneralUtils.log("stacking multiplier: " + configManager.getStackingMultiplier());
+            return;
+        }
+
         // Get the multiplier for the player
         Multiplier multiplier = multiplierManager.getMultiplier(event.getPlayer());
         // Calculate the difference between new balance and old balance

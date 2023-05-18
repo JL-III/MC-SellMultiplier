@@ -1,7 +1,6 @@
 package com.sellmultiplier.commands;
 
 import com.sellmultiplier.managers.ConfigManager;
-import com.sellmultiplier.managers.MultiplierManager;
 import com.sellmultiplier.managers.PermissionsManager;
 import com.sellmultiplier.utils.GeneralUtils;
 import org.bukkit.ChatColor;
@@ -11,7 +10,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
