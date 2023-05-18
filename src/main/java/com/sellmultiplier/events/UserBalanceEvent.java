@@ -49,7 +49,7 @@ public class UserBalanceEvent implements Listener {
                 event.setNewBalance(event.getOldBalance().add(multipliedDiff));
                 BigDecimal amountAdded = multipliedDiff.subtract(diff);
                 GeneralUtils.log("sell-multiplier bonus of $" + amountAdded.setScale(2, RoundingMode.HALF_UP) +
-                        " applied for " + event.getPlayer().getName() + " (permission: " + multiplier + ")");
+                        " applied for " + event.getPlayer().getName() + " (permission: " + multiplier.getKey() + ")");
                 // If the multiplier key isn't "default"
                 if (multiplier.getValue().compareTo(BigDecimal.ZERO) > 0) {
                     // Check if the user's UUID is already in the aggregate map
