@@ -6,6 +6,7 @@ import com.sellmultiplier.managers.ConfigManager;
 import com.sellmultiplier.managers.MultiplierManager;
 import com.sellmultiplier.utils.GeneralUtils;
 import net.ess3.api.events.UserBalanceUpdateEvent;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -35,76 +36,46 @@ public class UserBalanceEvent implements Listener {
     // Event handler for when a user's balance is updated
     @EventHandler
     public void onUserBalanceUpdateEvent(UserBalanceUpdateEvent event) {
-        // If the cause of balance update isn't due to selling command, return and do nothing
         if (event.getCause() != UserBalanceUpdateEvent.Cause.COMMAND_SELL) {
             return;
         }
-
+        Multiplier multiplier;
         if (configManager.getStackingEnabled()) {
-            GeneralUtils.log("Stacking enabled");
-            Multiplier multiplier = multiplierManager.getStackedMultiplier(event.getPlayer());
-            BigDecimal diff = event.getNewBalance().subtract(event.getOldBalance());
-            if (multiplier.getValue().compareTo(BigDecimal.ONE) > 0 && diff.compareTo(BigDecimal.ZERO) > 0) {
-                BigDecimal multipliedDiff = diff.multiply(multiplier.getValue());
-                event.setNewBalance(event.getOldBalance().add(multipliedDiff));
-                BigDecimal amountAdded = multipliedDiff.subtract(diff);
-                GeneralUtils.log("sell-multiplier bonus of $" + amountAdded.setScale(2, RoundingMode.HALF_UP) +
-                        " applied for " + event.getPlayer().getName() + " (permission: " + multiplier.getKey() + ")");
-                // If the multiplier key isn't "default"
-                if (multiplier.getValue().compareTo(BigDecimal.ZERO) > 0) {
-                    // Check if the user's UUID is already in the aggregate map
-                    if (aggregates.containsKey(event.getPlayer().getUniqueId())) {
-                        // If yes, add the newly added amount to the aggregate amount for that user
-                        BigDecimal aggregate = aggregates.get(event.getPlayer().getUniqueId());
-                        aggregate = aggregate.add(amountAdded);
-                        aggregates.put(event.getPlayer().getUniqueId(), aggregate);
-                    } else {
-                        // If not, add the new user and the amount to the map
-                        aggregates.put(event.getPlayer().getUniqueId(), amountAdded);
-                    }
-
-                    // Create a new notifier task to notify the user and run it after a delay
-                    new Notifier(configManager, event.getPlayer(), multiplier.getKey()).runTaskLater(plugin, 1);
-                }
-            }
-            return;
+            multiplier = multiplierManager.getStackedMultiplier(event.getPlayer());
+        } else {
+            multiplier = multiplierManager.getMultiplier(event.getPlayer());
         }
+        applyAndLogMultiplierBonus(event, multiplier);
+    }
 
-        // Get the multiplier for the player
-        Multiplier multiplier = multiplierManager.getMultiplier(event.getPlayer());
-        // Calculate the difference between new balance and old balance
+    public void applyAndLogMultiplierBonus(UserBalanceUpdateEvent event, Multiplier multiplier) {
         BigDecimal diff = event.getNewBalance().subtract(event.getOldBalance());
-
-        // If multiplier value is greater than one and difference is greater than zero
         if (multiplier.getValue().compareTo(BigDecimal.ONE) > 0 && diff.compareTo(BigDecimal.ZERO) > 0) {
-            // Multiply the difference with multiplier value
             BigDecimal multipliedDiff = diff.multiply(multiplier.getValue());
-            // Set the new balance of the event
             event.setNewBalance(event.getOldBalance().add(multipliedDiff));
-            // Calculate the additional amount added due to multiplier
             BigDecimal amountAdded = multipliedDiff.subtract(diff);
-
-            // Log the information about the added bonus
             GeneralUtils.log("sell-multiplier bonus of $" + amountAdded.setScale(2, RoundingMode.HALF_UP) +
                     " applied for " + event.getPlayer().getName() + " (permission: " + multiplier.getKey().toUpperCase() + ")");
-
             // If the multiplier key isn't "default"
             if (!"default".equalsIgnoreCase(multiplier.getKey())) {
-                // Check if the user's UUID is already in the aggregate map
-                if (aggregates.containsKey(event.getPlayer().getUniqueId())) {
-                    // If yes, add the newly added amount to the aggregate amount for that user
-                    BigDecimal aggregate = aggregates.get(event.getPlayer().getUniqueId());
-                    aggregate = aggregate.add(amountAdded);
-                    aggregates.put(event.getPlayer().getUniqueId(), aggregate);
-                } else {
-                    // If not, add the new user and the amount to the map
-                    aggregates.put(event.getPlayer().getUniqueId(), amountAdded);
-                }
-
-                // Create a new notifier task to notify the user and run it after a delay
-                new Notifier(configManager, event.getPlayer(), multiplier.getKey()).runTaskLater(plugin, 1);
+                processAggregates(event.getPlayer(), multiplier.getKey(), amountAdded);
             }
         }
+    }
+
+    public void processAggregates(Player player, String multiplierKey, BigDecimal amountAdded) {
+        // Check if the user's UUID is already in the aggregate map
+        if (aggregates.containsKey(player.getUniqueId())) {
+            // If yes, add the newly added amount to the aggregate amount for that user
+            BigDecimal aggregate = aggregates.get(player.getUniqueId());
+            aggregate = aggregate.add(amountAdded);
+            aggregates.put(player.getUniqueId(), aggregate);
+        } else {
+            // If not, add the new user and the amount to the map
+            aggregates.put(player.getUniqueId(), amountAdded);
+        }
+        // Create a new notifier task to notify the user and run it after a delay
+        new Notifier(configManager, player, multiplierKey).runTaskLater(plugin, 1);
     }
 
 }
