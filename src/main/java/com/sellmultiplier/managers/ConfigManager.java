@@ -4,88 +4,97 @@ import com.sellmultiplier.utils.GeneralUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class ConfigManager {
-    // The instance of the plugin
     private final Plugin plugin;
-    // The section in the configuration file for sell multipliers
-    private ConfigurationSection sellMultipliers;
-    // The section in the configuration file for multiplier stacking
+    private Map<String, BigDecimal> sellMultipliers = new HashMap<>();
     private ConfigurationSection multiplierStacking;
     private boolean stackingEnabled;
     private double baseValue;
-    // The message to be displayed from the configuration file
     private String message;
 
-    // Constructor to initialize plugin and get sections from the config file
     public ConfigManager(Plugin plugin) {
         this.plugin = plugin;
-        this.sellMultipliers = plugin.getConfig().getConfigurationSection("sell-multipliers");
-        this.multiplierStacking = plugin.getConfig().getConfigurationSection("sell-multiplier-stacking");
-        this.stackingEnabled = multiplierStacking.getBoolean("enable");
-        this.baseValue = multiplierStacking.getDouble("base-value");
-        this.message = plugin.getConfig().getString("message");
+        loadAndValidateConfig();
     }
 
-    // Method to get a specific multiplier from the config
     public BigDecimal getMultiplierFromConfig(String name) {
-        // By default, the multiplier is 1
-        BigDecimal multiplier = BigDecimal.ONE;
-
-        // Check if sell multipliers are configured
-        if (sellMultipliers == null) {
-            GeneralUtils.logWarning("No sell-multipliers specified in config! Defaulting to 1");
-            return multiplier;
-        }
-
-        // Get the multiplier string for the given name
-        String multiplierString = sellMultipliers.getString(name);
-        if (multiplierString == null) {
-            GeneralUtils.logWarning("No multiplier specified for '" + name + "'! Defaulting to 1");
-            return multiplier;
-        }
-
-        try {
-            // Try to parse the multiplier string as a BigDecimal
-            multiplier = BigDecimal.valueOf(Double.parseDouble(multiplierString));
-        } catch (Exception e) {
-            // If the parsing fails, log a warning and return a default multiplier
-            GeneralUtils.logWarning("Invalid multiplier '" + multiplierString + "' specified for '" + name + "'. Defaulting multiplier to 1.");
-            return multiplier;
-        }
-
-        return multiplier;
+        return sellMultipliers.getOrDefault(name, BigDecimal.ONE);
     }
 
     public BigDecimal getStackingMultiplier() {
-        BigDecimal multiplier = BigDecimal.ONE;
-        try {
-            // Try to parse the multiplier string as a BigDecimal
-            multiplier = BigDecimal.valueOf(getStackingBaseValue());
-        } catch (Exception e) {
-            // If the parsing fails, log a warning and return a default multiplier
-            GeneralUtils.logWarning("Something went wrong in stacking multiplier, returning default multiplier");
-            return multiplier;
+        return BigDecimal.valueOf(baseValue);
+    }
+
+    private void loadAndValidateConfig() {
+        ConfigurationSection multiplierSection = plugin.getConfig().getConfigurationSection("sell-multipliers");
+
+        if (multiplierSection == null) {
+            GeneralUtils.logWarning("No sell-multipliers specified in config! Defaulting to 1 for 'default'");
+            sellMultipliers.put("default", BigDecimal.ONE);
+        } else {
+            for (String key : multiplierSection.getKeys(false)) {
+                try {
+                    sellMultipliers.put(key, BigDecimal.valueOf(Double.parseDouble(multiplierSection.getString(key))));
+                } catch (NumberFormatException e) {
+                    GeneralUtils.logWarning("Invalid multiplier '" + multiplierSection.getString(key) + "' specified for '" + key + "'. Defaulting multiplier to 1.");
+                    sellMultipliers.put(key, BigDecimal.ONE);
+                }
+            }
         }
-        return multiplier;
-    }
-
-    // Method to reload the configuration file
-    public void reloadConfig() {
-        // Reload the config from the disk
-        plugin.reloadConfig();
-        // Refresh the configuration sections and message from the reloaded config
-        this.sellMultipliers = plugin.getConfig().getConfigurationSection("sell-multipliers");
         this.multiplierStacking = plugin.getConfig().getConfigurationSection("sell-multiplier-stacking");
-        this.stackingEnabled = multiplierStacking.getBoolean("enable");
-        this.baseValue = multiplierStacking.getDouble("base-value");
+
+        if (this.multiplierStacking == null) {
+            GeneralUtils.logWarning("No sell-multiplier-stacking specified in config! Defaulting to disabled and base value 1.");
+            this.stackingEnabled = false;
+            this.baseValue = 1.0;
+        } else {
+            this.stackingEnabled = multiplierStacking.getBoolean("enable");
+            validateAndLoadBaseValue();
+        }
+
         this.message = plugin.getConfig().getString("message");
+        if (this.message == null) {
+            GeneralUtils.logWarning("No message specified in config! Defaulting to empty.");
+            this.message = "";
+        }
     }
 
-    // Getter methods to access private fields
-    public ConfigurationSection getSellMultipliers() {
+    public void reloadConfig() {
+        plugin.reloadConfig();
+        sellMultipliers.clear();
+        loadAndValidateConfig();
+    }
+
+    private void validateAndLoadBaseValue() {
+        Object baseValueObj = multiplierStacking.get("base-value");
+        if (baseValueObj instanceof String) {
+            try {
+                this.baseValue = Double.parseDouble((String) baseValueObj);
+            } catch (NumberFormatException e) {
+                GeneralUtils.logWarning("Stacking base value in config is not a valid number. Defaulting to 1.0");
+                this.baseValue = 1.0;
+            }
+        } else if (baseValueObj instanceof Double) {
+            this.baseValue = (Double) baseValueObj;
+        } else {
+            GeneralUtils.logWarning("Stacking base value in config is not a valid type. It should be a number or a string representing a number. Defaulting to 1.0");
+            this.baseValue = 1.0;
+        }
+    }
+
+    public Map<String, BigDecimal> getSellMultipliers() {
         return sellMultipliers;
     }
+
+    public Set<String> getMultiplierNames() {
+        return Collections.unmodifiableSet(sellMultipliers.keySet());
+    }
+
 
     public ConfigurationSection getMultiplierStacking() {
         return multiplierStacking;

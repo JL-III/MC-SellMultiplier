@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.math.BigDecimal;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,11 +58,13 @@ public class MultiplierManager {
     public Multiplier getStackedMultiplier(Player player) {
         int count = 0;
         Pattern pattern = Pattern.compile("^sell\\.multiplier\\..*");
+        Set<String> nonStackingMultipliers = configManager.getMultiplierNames();
+
         for (PermissionAttachmentInfo perm : player.getEffectivePermissions()) {
             String permission = perm.getPermission();
             // Check if permission matches pattern
             Matcher matcher = pattern.matcher(permission);
-            if (matcher.find()) {
+            if (matcher.find() && !nonStackingMultipliers.contains(permission.substring("sell.multiplier.".length()))) {
                 GeneralUtils.log(permission);
                 count++;
             }
@@ -70,5 +73,6 @@ public class MultiplierManager {
         double baseMultiplier = configManager.getStackingBaseValue() - 1;
         return new Multiplier(Integer.toString(count), (BigDecimal.valueOf(1 + (count * baseMultiplier))));
     }
+
 }
 

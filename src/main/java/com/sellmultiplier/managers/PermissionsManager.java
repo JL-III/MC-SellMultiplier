@@ -20,12 +20,12 @@ public class PermissionsManager {
     }
 
     public void loadMultiplierPerms() {
-        ConfigurationSection section = configManager.getSellMultipliers();
-        if (section == null) {
+        Set<String> multiplierNames = configManager.getMultiplierNames();
+        if (multiplierNames.isEmpty()) {
             GeneralUtils.logWarning("No sell-multiplier specified in config!");
             return;
         }
-        this.multiplierPerms = section.getKeys(false);
+        this.multiplierPerms = multiplierNames;
     }
 
     public Set<String> getMultiplierPerms() {
