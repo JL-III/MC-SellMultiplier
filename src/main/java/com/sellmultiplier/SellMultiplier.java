@@ -9,17 +9,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
-import java.util.logging.Logger;
 
 public class SellMultiplier extends JavaPlugin {
-    public static Logger logger;
-    private ConfigManager configManager;
-    private PermissionsManager permissionsManager;
-    private MultiplierManager multiplierManager;
 
-    public SellMultiplier() {
-        logger = getLogger();
-    }
 
     @Override
     public void onEnable() {
@@ -27,11 +19,11 @@ public class SellMultiplier extends JavaPlugin {
         saveDefaultConfig();
         reloadConfig();
 
-        configManager = new ConfigManager(this);
-        permissionsManager = new PermissionsManager(configManager);
-        multiplierManager = new MultiplierManager(configManager, permissionsManager);
+        ConfigManager configManager = new ConfigManager(this);
+        PermissionsManager permissionsManager = new PermissionsManager(configManager);
+        MultiplierManager multiplierManager = new MultiplierManager(configManager, permissionsManager);
 
-        permissionsManager.loadMultiplierPerms();
+        permissionsManager.loadPerms();
         Objects.requireNonNull(getCommand("sellmultiplier")).setExecutor(new AdminCommands(configManager, permissionsManager));
         Bukkit.getPluginManager().registerEvents(new UserBalanceEvent(this, configManager, multiplierManager), this);
     }

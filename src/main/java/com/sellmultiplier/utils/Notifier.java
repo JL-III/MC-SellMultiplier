@@ -35,7 +35,7 @@ public class Notifier extends BukkitRunnable {
 
         // If the message is null, logs a warning and returns early
         if (message == null) {
-            SellMultiplier.logger.warning("No message is set in config!");
+            GeneralUtils.logWarning("No message is set in config!");
             return;
         }
 

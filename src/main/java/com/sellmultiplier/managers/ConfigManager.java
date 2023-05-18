@@ -77,6 +77,8 @@ public class ConfigManager {
         // Refresh the configuration sections and message from the reloaded config
         this.sellMultipliers = plugin.getConfig().getConfigurationSection("sell-multipliers");
         this.multiplierStacking = plugin.getConfig().getConfigurationSection("sell-multiplier-stacking");
+        this.stackingEnabled = multiplierStacking.getBoolean("enable");
+        this.baseValue = multiplierStacking.getDouble("base-value");
         this.message = plugin.getConfig().getString("message");
     }
 

@@ -1,9 +1,13 @@
 package com.sellmultiplier.managers;
 
+import com.sellmultiplier.utils.GeneralUtils;
 import com.sellmultiplier.utils.Multiplier;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.math.BigDecimal;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MultiplierManager {
 
@@ -48,6 +52,23 @@ public class MultiplierManager {
 
         // Return a new multiplier with the final key and value
         return new Multiplier(key, value);
+    }
+
+    public double getStackedMultiplier(Player player) {
+        double count = 0;
+        Pattern pattern = Pattern.compile("^sell\\.multiplier\\..*");
+        for (PermissionAttachmentInfo perm : player.getEffectivePermissions()) {
+            String permission = perm.getPermission();
+            // Check if permission matches pattern
+            Matcher matcher = pattern.matcher(permission);
+            if (matcher.find()) {
+                GeneralUtils.log(permission);
+                count++;
+            }
+        }
+        // Fetch the base multiplier from the config and adjust it
+        double baseMultiplier = configManager.getStackingBaseValue() - 1;
+        return 1 + (count * baseMultiplier);
     }
 }
 
