@@ -3,7 +3,8 @@
 # Whether to stack multipliers and ignore values
 # this allows you to place multipliers in groups and stack them
 # Example: 'sell.multiplier.god', 'sell.multiplier.quartz', 'sell.multiplier.opulent' will stack
-enable-sell-multiplier-stacking: false
+sell-multiplier-stacking:
+  enabled: false
   # Ever multiplier in the stacking uses this base value.
   # Example: 'sell.multiplier.god' has a base-value of 1.05
   # adding 'sell.multiplier.quartz' will result in a multiplier of 1.10
