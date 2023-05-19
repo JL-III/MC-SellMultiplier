@@ -1,4 +1,4 @@
-package com.sellmultiplier;
+package com.sellmultiplier.utils;
 
 import java.math.BigDecimal;
 
