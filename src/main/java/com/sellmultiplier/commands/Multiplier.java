@@ -8,9 +8,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Multiplier implements CommandExecutor, TabCompleter {
@@ -21,8 +23,30 @@ public class Multiplier implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-        return List.of();
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+        if (!commandSender.hasPermission(Util.CHECK_SELF_PERMISSION) || !commandSender.hasPermission(Util.CHECK_OTHER_PERMISSION)) return new ArrayList<>();
+        switch (args.length) {
+            case 1 -> {
+                if (commandSender.hasPermission(Util.CHECK_OTHER_PERMISSION)) {
+                    return new ArrayList<>(){{
+                        add("check");
+                    }};
+                }
+            }
+            case 2 -> {
+                if (commandSender.hasPermission(Util.CHECK_OTHER_PERMISSION)) {
+                    return new ArrayList<>(){{
+                        for (Player player : Bukkit.getOnlinePlayers()) {
+                            add(player.getName());
+                        }
+                    }};
+                }
+            }
+            default -> {
+                return new ArrayList<>();
+            }
+        }
+        return new ArrayList<>();
     }
 
     @Override
@@ -41,6 +65,7 @@ public class Multiplier implements CommandExecutor, TabCompleter {
                     sender.sendMessage(Util.NO_PERMISSION);
                     return true;
                 }
+                if (!args[0].equalsIgnoreCase("check")) return false;
                 try {
                     Util.sendPermissionMessage(sender, multiplierManager.getMultiplierPermissions(Bukkit.getPlayer(args[1])));
                     return true;
