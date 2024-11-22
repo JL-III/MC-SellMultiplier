@@ -1,49 +1,38 @@
 package com.sellmultiplier.utils;
 
-import com.sellmultiplier.SellMultiplier;
-import com.sellmultiplier.events.UserBalanceEvent;
-import com.sellmultiplier.managers.ConfigManager;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Locale;
 
 public class Notifier extends BukkitRunnable {
-    private final ConfigManager configManager;
     private final Player player;
     private final String perm;
+    private final BigDecimal aggregate;
 
-    public Notifier(ConfigManager configManager, Player player, String perm) {
-        this.configManager = configManager;
+    public Notifier(Player player, String perm, @NotNull BigDecimal aggregate) {
         this.player = player;
         this.perm = perm;
+        this.aggregate = aggregate;
     }
 
     @Override
     public void run() {
-        String message = configManager.getMessage();
-
-        if (message == null) {
-            GeneralUtils.logWarning("No message is set in config!");
-            return;
-        }
-
-        BigDecimal aggregate = UserBalanceEvent.aggregates.get(player.getUniqueId());
-
-        if (aggregate == null) {
-            return;
-        }
 
         if (aggregate.setScale(2, RoundingMode.HALF_UP).compareTo(BigDecimal.ZERO) == 0) {
             return;
         }
 
-        message = String.format(message, perm.toUpperCase(Locale.ROOT), aggregate.setScale(2, RoundingMode.HALF_UP));
-
-        player.sendMessage(message);
-
-        UserBalanceEvent.aggregates.remove(player.getUniqueId());
+        player.sendMessage(String.format(
+                        Util.MESSAGE,
+                        perm.toUpperCase(Locale.ROOT),
+                        aggregate.setScale(
+                                2,
+                                RoundingMode.HALF_UP
+                        ))
+        );
     }
 }
