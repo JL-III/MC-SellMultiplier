@@ -1,10 +1,9 @@
 package com.sellmultiplier.events;
 
+import com.sellmultiplier.managers.MultiplierManager;
 import com.sellmultiplier.utils.Multiplier;
 import com.sellmultiplier.utils.Notifier;
-import com.sellmultiplier.managers.ConfigManager;
-import com.sellmultiplier.managers.MultiplierManager;
-import com.sellmultiplier.utils.GeneralUtils;
+import com.sellmultiplier.utils.Util;
 import net.ess3.api.events.UserBalanceUpdateEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,14 +16,12 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class UserBalanceEvent implements Listener {
-    private Plugin plugin;
-    private ConfigManager configManager;
+    private final Plugin plugin;
     private final MultiplierManager multiplierManager;
     public static final ConcurrentHashMap<UUID, BigDecimal> aggregates = new ConcurrentHashMap<>();
 
-    public UserBalanceEvent(Plugin plugin, ConfigManager configManager, MultiplierManager multiplierManager) {
+    public UserBalanceEvent(Plugin plugin, MultiplierManager multiplierManager) {
         this.plugin = plugin;
-        this.configManager = configManager;
         this.multiplierManager = multiplierManager;
     }
 
@@ -33,28 +30,19 @@ public class UserBalanceEvent implements Listener {
         if (event.getCause() != UserBalanceUpdateEvent.Cause.COMMAND_SELL) {
             return;
         }
-        Multiplier multiplier;
-        if (configManager.getStackingEnabled()) {
-            multiplier = multiplierManager.getStackedMultiplier(event.getPlayer());
-        } else {
-            multiplier = multiplierManager.getMultiplier(event.getPlayer());
-        }
-        applyAndLogMultiplierBonus(event, multiplier);
-    }
+        Multiplier multiplier = multiplierManager.getMultiplier(event.getPlayer());
 
-    public void applyAndLogMultiplierBonus(UserBalanceUpdateEvent event, Multiplier multiplier) {
         BigDecimal diff = event.getNewBalance().subtract(event.getOldBalance());
+
         if (multiplier.getValue().compareTo(BigDecimal.ONE) > 0 && diff.compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal multipliedDiff = diff.multiply(multiplier.getValue());
             event.setNewBalance(event.getOldBalance().add(multipliedDiff));
-            BigDecimal amountAdded = multipliedDiff.subtract(diff);
+            BigDecimal aggregate = multipliedDiff.subtract(diff);
 
-            GeneralUtils.log("sell-multiplier bonus of $" + amountAdded.setScale(2, RoundingMode.HALF_UP) +
+            Util.log("sell-multiplier bonus of $" + aggregate.setScale(2, RoundingMode.HALF_UP) +
                     " applied for " + event.getPlayer().getName() + " (permission: " + multiplier.getKey().toUpperCase() + ")");
 
-            if (!"default".equalsIgnoreCase(multiplier.getKey())) {
-                processAggregates(event.getPlayer(), multiplier.getKey(), amountAdded);
-            }
+            processAggregates(event.getPlayer(), multiplier.getKey(), aggregate);
         }
     }
 
@@ -67,7 +55,6 @@ public class UserBalanceEvent implements Listener {
             aggregates.put(player.getUniqueId(), amountAdded);
         }
 
-        new Notifier(configManager, player, multiplierKey).runTaskLater(plugin, 1);
+        new Notifier(player, multiplierKey).runTaskLater(plugin, 1);
     }
-
 }
