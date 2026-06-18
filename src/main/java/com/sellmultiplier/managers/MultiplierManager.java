@@ -1,15 +1,12 @@
 package com.sellmultiplier.managers;
 
+import com.sellmultiplier.config.ConfigManager;
 import com.sellmultiplier.utils.Multiplier;
-import com.sellmultiplier.utils.Util;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -23,37 +20,10 @@ public class MultiplierManager {
     private static final Pattern PERMISSION_PATTERN =
             Pattern.compile("^" + Pattern.quote(PERMISSION_PREFIX) + "(.+)$");
 
-    // Per-permission bonus values loaded from config, keyed by lower-cased suffix.
-    private final Map<String, BigDecimal> bonuses = new HashMap<>();
+    private final ConfigManager configManager;
 
-    public MultiplierManager(FileConfiguration config) {
-        load(config);
-    }
-
-    /**
-     * (Re)loads the configured per-permission bonus values. Only listed
-     * permissions grant a bonus; any unlisted sell.multiplier.* permission is
-     * ignored.
-     */
-    public void load(FileConfiguration config) {
-        bonuses.clear();
-
-        ConfigurationSection section = config.getConfigurationSection("sell-multipliers");
-        if (section == null) {
-            Util.log("No 'sell-multipliers' section in config.yml; no sell multipliers are "
-                    + "configured.");
-            return;
-        }
-
-        for (String key : section.getKeys(false)) {
-            if (!section.isDouble(key) && !section.isInt(key)) {
-                Util.log("Ignoring 'sell-multipliers." + key + "': value '" + section.get(key)
-                        + "' is not a number.");
-                continue;
-            }
-            bonuses.put(key.toLowerCase(Locale.ROOT), BigDecimal.valueOf(section.getDouble(key)));
-        }
-        Util.log("Loaded " + bonuses.size() + " sell multiplier(s) from config.");
+    public MultiplierManager(ConfigManager configManager) {
+        this.configManager = configManager;
     }
 
     /**
@@ -61,14 +31,14 @@ public class MultiplierManager {
      * {@code 1 + the sum of every matching permission's configured bonus}.
      */
     public Multiplier getMultiplier(Player player) {
+        Map<String, BigDecimal> multipliers = configManager.getMultipliers();
         BigDecimal bonus = BigDecimal.ZERO;
         for (String suffix : getMultiplierSuffixes(player)) {
-            if (bonuses.containsKey(suffix)) {
-                bonus = bonus.add(bonuses.get(suffix));
+            if (multipliers.containsKey(suffix)) {
+                bonus = bonus.add(multipliers.get(suffix));
             }
         }
-        BigDecimal value = BigDecimal.ONE.add(bonus);
-        return new Multiplier(formatPercent(bonus), value);
+        return new Multiplier(formatPercent(bonus), BigDecimal.ONE.add(bonus));
     }
 
     /** Returns the lower-cased suffixes of every granted sell.multiplier.* permission. */
@@ -86,11 +56,12 @@ public class MultiplierManager {
 
     /** Human-readable list of a sender's multipliers, e.g. "Weekend (+25%)". */
     public Set<String> getStringsForPlayerPermCheck(CommandSender sender) {
+        Map<String, BigDecimal> multipliers = configManager.getMultipliers();
         Set<String> result = new HashSet<>();
         for (String suffix : getMultiplierSuffixes(sender)) {
-            if (!bonuses.containsKey(suffix)) continue;
+            if (!multipliers.containsKey(suffix)) continue;
             String label = Character.toUpperCase(suffix.charAt(0)) + suffix.substring(1);
-            result.add(label + " (+" + formatPercent(bonuses.get(suffix)) + ")");
+            result.add(label + " (+" + formatPercent(multipliers.get(suffix)) + ")");
         }
         return result;
     }
