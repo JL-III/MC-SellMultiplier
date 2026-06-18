@@ -43,9 +43,8 @@ sell-multiplier.check.other Allows checking another player's multipliers.
 
 ## Config
 ```yaml
-# Any sell.multiplier.* permission without an explicit entry uses 'default-bonus'.
-# Values are decimals: 0.25 = +25%. Permissions set to false are ignored.
-default-bonus: 0.10
+# Only the permissions listed below grant a bonus. Values are decimals
+# (0.25 = +25%). Unlisted or false permissions are ignored.
 
 sell-multipliers:
   # Event multiplier (set manually during events).

@@ -14,9 +14,9 @@
 #          sell.multiplier.community-goal-N perms (0.10 each) sells for
 #          1 + 0.25 + 0.50 = 1.75  ->  a +75% sell bonus.
 #
-# Any sell.multiplier.* permission that is NOT listed here falls back to
-# 'default-bonus'. Permissions explicitly set to false are ignored.
-default-bonus: 0.10
+# Only the permissions listed below grant a bonus -- a sell.multiplier.*
+# permission that is not listed here grants nothing. Permissions explicitly
+# set to false are ignored.
 
 sell-multipliers:
   # Event multiplier. Set manually for the duration of an event, e.g.:

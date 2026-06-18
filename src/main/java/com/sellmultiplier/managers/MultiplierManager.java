@@ -25,24 +25,23 @@ public class MultiplierManager {
 
     // Per-permission bonus values loaded from config, keyed by lower-cased suffix.
     private final Map<String, BigDecimal> bonuses = new HashMap<>();
-    private BigDecimal defaultBonus = BigDecimal.valueOf(0.10);
 
     public MultiplierManager(FileConfiguration config) {
         load(config);
     }
 
     /**
-     * (Re)loads the configured per-permission bonus values. Any sell.multiplier.*
-     * permission without an explicit entry uses 'default-bonus'.
+     * (Re)loads the configured per-permission bonus values. Only listed
+     * permissions grant a bonus; any unlisted sell.multiplier.* permission is
+     * ignored.
      */
     public void load(FileConfiguration config) {
         bonuses.clear();
-        defaultBonus = BigDecimal.valueOf(config.getDouble("default-bonus", 0.10));
 
         ConfigurationSection section = config.getConfigurationSection("sell-multipliers");
         if (section == null) {
-            Util.log("No 'sell-multipliers' section in config.yml; every sell.multiplier.* "
-                    + "permission will fall back to the default bonus of " + defaultBonus + ".");
+            Util.log("No 'sell-multipliers' section in config.yml; no sell multipliers are "
+                    + "configured.");
             return;
         }
 
@@ -64,7 +63,9 @@ public class MultiplierManager {
     public Multiplier getMultiplier(Player player) {
         BigDecimal bonus = BigDecimal.ZERO;
         for (String suffix : getMultiplierSuffixes(player)) {
-            bonus = bonus.add(bonuses.getOrDefault(suffix, defaultBonus));
+            if (bonuses.containsKey(suffix)) {
+                bonus = bonus.add(bonuses.get(suffix));
+            }
         }
         BigDecimal value = BigDecimal.ONE.add(bonus);
         return new Multiplier(formatPercent(bonus), value);
@@ -87,9 +88,9 @@ public class MultiplierManager {
     public Set<String> getStringsForPlayerPermCheck(CommandSender sender) {
         Set<String> result = new HashSet<>();
         for (String suffix : getMultiplierSuffixes(sender)) {
-            BigDecimal bonus = bonuses.getOrDefault(suffix, defaultBonus);
+            if (!bonuses.containsKey(suffix)) continue;
             String label = Character.toUpperCase(suffix.charAt(0)) + suffix.substring(1);
-            result.add(label + " (+" + formatPercent(bonus) + ")");
+            result.add(label + " (+" + formatPercent(bonuses.get(suffix)) + ")");
         }
         return result;
     }
