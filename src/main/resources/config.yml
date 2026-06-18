@@ -1,0 +1,35 @@
+# SellMultiplier configuration
+#
+# Each 'sell.multiplier.<key>' permission a player has grants the bonus listed
+# below. Values are decimals where 0.25 = +25%.
+#
+# Bonuses are ADDITIVE. A player's sell payout multiplier is:
+#     1 + (sum of the values of EVERY sell.multiplier.* permission they have)
+#
+# These permissions are granted temporarily -- by events (set manually) and by
+# the TheatriaSessions plugin as the community hits playtime goals. They are NOT
+# assigned per individual rank.
+#
+# Example: a player with sell.multiplier.weekend (0.25) and the five
+#          sell.multiplier.community-goal-N perms (0.10 each) sells for
+#          1 + 0.25 + 0.50 = 1.75  ->  a +75% sell bonus.
+#
+# Only the permissions listed below grant a bonus -- a sell.multiplier.*
+# permission that is not listed here grants nothing. Permissions explicitly
+# set to false are ignored.
+
+sell-multipliers:
+  # Event multiplier. Set manually for the duration of an event, e.g.:
+  #   lp group default permission settemp sell.multiplier.weekend true 2day
+  weekend: 0.25
+
+  # Community activity goals. Granted automatically by the TheatriaSessions
+  # plugin as the community hits daily playtime milestones. They are intended to
+  # stack additively (goal-1..5 = +50% total at the top tier). The values here
+  # are the single source of truth for what each tier is worth -- TheatriaSessions
+  # only grants the permission node; it does not set the percentage.
+  community-goal-1: 0.10
+  community-goal-2: 0.10
+  community-goal-3: 0.10
+  community-goal-4: 0.10
+  community-goal-5: 0.10

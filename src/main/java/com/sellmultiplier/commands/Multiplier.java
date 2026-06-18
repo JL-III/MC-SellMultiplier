@@ -1,5 +1,6 @@
 package com.sellmultiplier.commands;
 
+import com.sellmultiplier.config.ConfigManager;
 import com.sellmultiplier.managers.MultiplierManager;
 import com.sellmultiplier.utils.Util;
 import org.bukkit.Bukkit;
@@ -17,36 +18,32 @@ import java.util.List;
 
 public class Multiplier implements CommandExecutor, TabCompleter {
     private final MultiplierManager multiplierManager;
+    private final ConfigManager configManager;
 
-    public Multiplier(MultiplierManager multiplierManager) {
+    public Multiplier(MultiplierManager multiplierManager, ConfigManager configManager) {
         this.multiplierManager = multiplierManager;
+        this.configManager = configManager;
     }
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        if (!commandSender.hasPermission(Util.CHECK_SELF_PERMISSION) || !commandSender.hasPermission(Util.CHECK_OTHER_PERMISSION)) return new ArrayList<>();
+        List<String> completions = new ArrayList<>();
         switch (args.length) {
             case 1 -> {
-                if (commandSender.hasPermission(Util.CHECK_OTHER_PERMISSION)) {
-                    return new ArrayList<>(){{
-                        add("check");
-                    }};
-                }
+                if (commandSender.hasPermission(Util.CHECK_OTHER_PERMISSION)) completions.add("check");
+                if (commandSender.hasPermission(Util.RELOAD_PERMISSION)) completions.add("reload");
             }
             case 2 -> {
-                if (commandSender.hasPermission(Util.CHECK_OTHER_PERMISSION)) {
-                    return new ArrayList<>(){{
-                        for (Player player : Bukkit.getOnlinePlayers()) {
-                            add(player.getName());
-                        }
-                    }};
+                if (commandSender.hasPermission(Util.CHECK_OTHER_PERMISSION)
+                        && args[0].equalsIgnoreCase("check")) {
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        completions.add(player.getName());
+                    }
                 }
             }
-            default -> {
-                return new ArrayList<>();
-            }
+            default -> {}
         }
-        return new ArrayList<>();
+        return completions;
     }
 
     @Override
@@ -60,6 +57,16 @@ public class Multiplier implements CommandExecutor, TabCompleter {
                 Util.sendPermissionMessage(sender, multiplierManager.getStringsForPlayerPermCheck(sender));
                 return true;
             }
+            case 1 -> {
+                if (!args[0].equalsIgnoreCase("reload")) return false;
+                if (!sender.hasPermission(Util.RELOAD_PERMISSION)) {
+                    sender.sendMessage(Util.NO_PERMISSION);
+                    return true;
+                }
+                configManager.reloadConfig();
+                sender.sendMessage(ChatColor.GREEN + "SellMultiplier configuration reloaded.");
+                return true;
+            }
             case 2 -> {
                 if (!sender.hasPermission(Util.CHECK_OTHER_PERMISSION)) {
                     sender.sendMessage(Util.NO_PERMISSION);
@@ -67,7 +74,7 @@ public class Multiplier implements CommandExecutor, TabCompleter {
                 }
                 if (!args[0].equalsIgnoreCase("check")) return false;
                 try {
-                    Util.sendPermissionMessage(sender, multiplierManager.getMultiplierPermissions(Bukkit.getPlayer(args[1])));
+                    Util.sendPermissionMessage(sender, multiplierManager.getStringsForPlayerPermCheck(Bukkit.getPlayer(args[1])));
                     return true;
                 } catch (Exception e) {
                     sender.sendMessage(ChatColor.RED + "Player not found.");

@@ -1,41 +1,69 @@
 # Sell Multiplier
-### Rank-based /sell multiplier for Theatria
+### Permission-based, additive `/sell` multiplier for Theatria
 
-Multiplies money earned via sell commands based on ranks.
-The ranks are specified in configuration and applied via permissions.
+Multiplies money earned via Essentials sell commands based on the
+`sell.multiplier.*` permissions a player has. Every matching permission
+contributes a configurable bonus, and **all bonuses stack additively**.
+
+## How it works
+On an Essentials `COMMAND_SELL` balance update, the plugin sums the configured
+value of every `sell.multiplier.*` permission the player holds and applies:
+
+```
+payout = base_proceeds * (1 + sum_of_matching_permission_values)
+```
+
+For example, a player holding `sell.multiplier.weekend` (0.25) plus the five
+`sell.multiplier.community-goal-N` perms (0.10 each) sells for
+`1 + 0.25 + 0.50 = 1.75` — a **+75%** bonus.
+
+## Integration with TheatriaSessions
+This plugin only *reads* permissions; it never grants them. The
+[TheatriaSessions](https://github.com/JL-III/TheatriaSessions) plugin grants
+temporary `sell.multiplier.community-goal-N` permissions to the LuckPerms
+`default` group as the community reaches daily playtime milestones. The two
+plugins are intentionally decoupled — the permission namespace is the contract.
+
+The **percentage each permission is worth is defined here, in this plugin's
+config** (the single source of truth). TheatriaSessions only decides *which*
+node to grant and *for how long*.
 
 ## Permissions
 ```
-sell.multiplier.reload: Allows player to reload configuration
-sell.muliplier.iii: Example of custom permission specified in configuration.
+sell.multiplier.<key>      Grants the bonus configured for <key> (additive).
+sell-multiplier.check.self Allows a player to check their own multipliers.
+sell-multiplier.check.other Allows checking another player's multipliers.
+sell-multiplier.reload     Allows reloading the configuration.
 ```
 
 ## Commands
 ```
-'/sellmultiplier reload' - Reloads the config.
-    Permission required: 'sell.multiplier.reload'
+/multiplier               - Lists your current sell multipliers and their values.
+/multiplier check <player> - Lists another player's multipliers.
+/multiplier reload         - Reloads the configuration from disk.
 ```
 
 ## Config
 ```yaml
-# Settings for /sell multipliers.
-# Give multipliers to players with the permissions 'sell.multiplier.{multiplier}'
-# Example: 'sell.multiplier.i', 'sell.multiplier.ii'.
-# You can add as many multipliers as you want.
-# Use the 'default' name to set the default multiplier that everyone has. It defaults to 1 if not set.
-# If a player has more than one multiplier permission, it will pick the highest one.
-sell-multipliers:
-  default: 1.0 # NOT a permission. The default multiplier everyone has.
-  i: 1.10
-  ii: 1.20
-  iii: 1.30
-  iiii: 1.40
-  v: 1.50
+# Only the permissions listed below grant a bonus. Values are decimals
+# (0.25 = +25%). Unlisted or false permissions are ignored.
 
-# Message sent to player when sell multiplier has been applied.
-# Will not send a message for 'default', or if player possesses none of the specified permissions above.
-# First %s is the (highest) permission the player has, as specified above - such as 'v'.
-# Second %s is the dollar amount.
-# Example: Blessing of the Oracle (V) has given you an extra ($15.00) Denarii!
-message: §dBlessing of the Oracle (%s) has given you an extra §c($%s) §dDenarii!
+sell-multipliers:
+  # Event multiplier (set manually during events).
+  weekend: 0.25
+
+  # Community activity goals (granted automatically by TheatriaSessions).
+  community-goal-1: 0.10
+  community-goal-2: 0.10
+  community-goal-3: 0.10
+  community-goal-4: 0.10
+  community-goal-5: 0.10
+```
+
+### Running a test server
+Launch a local Paper server with the freshly built plugin already installed:
+```
+mvn -Prun verify        # build, then download/boot Paper with the plugin
+# or, equivalently:
+bash scripts/run-server.sh
 ```

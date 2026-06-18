@@ -12,8 +12,9 @@ import java.util.Set;
 public class Util {
     public static final String CHECK_SELF_PERMISSION = "sell-multiplier.check.self";
     public static final String CHECK_OTHER_PERMISSION = "sell-multiplier.check.other";
+    public static final String RELOAD_PERMISSION = "sell-multiplier.reload";
 
-    private static final String BONUS_MESSAGE_TEMPLATE = "<gradient:{mainHexColor}:{secondaryHexColor}>The <color:{accentHexColor}>Oracle's</color:{accentHexColor}> Blessing (<color:{accentHexColor}>{perm}x</color:{accentHexColor}>) has given you an extra <color:{accentHexColor}>(${amount})</color:{accentHexColor}>!";
+    private static final String BONUS_MESSAGE_TEMPLATE = "<gradient:{mainHexColor}:{secondaryHexColor}>The <color:{accentHexColor}>Oracle's</color:{accentHexColor}> Blessing (<color:{accentHexColor}>+{perm}</color:{accentHexColor}>) has given you an extra <color:{accentHexColor}>(${amount})</color:{accentHexColor}>!";
 
     // default message
     public static Component getBonusMessage(String perm, BigDecimal amount) {
@@ -31,9 +32,6 @@ public class Util {
         return MiniMessage.miniMessage().deserialize(formattedMessage);
     }
 
-
-    // base multiplier value
-    public static final double BASE_VALUE = 0.10;
 
     private static final String PREFIX = "[SellMultiplier] ";
 
