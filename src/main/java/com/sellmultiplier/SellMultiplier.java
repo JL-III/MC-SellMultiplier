@@ -16,7 +16,7 @@ public class SellMultiplier extends JavaPlugin {
         saveDefaultConfig();
         reloadConfig();
 
-        MultiplierManager multiplierManager = new MultiplierManager();
+        MultiplierManager multiplierManager = new MultiplierManager(getConfig());
 
         Objects.requireNonNull(getCommand("multiplier")).setExecutor(new Multiplier(multiplierManager));
         Bukkit.getPluginManager().registerEvents(new UserBalanceEvent(this, multiplierManager), this);

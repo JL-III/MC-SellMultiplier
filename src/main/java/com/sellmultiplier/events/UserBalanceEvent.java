@@ -40,7 +40,7 @@ public class UserBalanceEvent implements Listener {
             BigDecimal aggregate = multipliedDiff.subtract(diff);
 
             Util.log("sell-multiplier bonus of $" + aggregate.setScale(2, RoundingMode.HALF_UP) +
-                    " applied for " + event.getPlayer().getName() + " (permission: " + multiplier.getKey().toUpperCase() + ")");
+                    " applied for " + event.getPlayer().getName() + " (total bonus: " + multiplier.getKey() + ")");
 
             processAggregates(event.getPlayer(), multiplier.getKey(), aggregate);
         }

@@ -67,7 +67,7 @@ public class Multiplier implements CommandExecutor, TabCompleter {
                 }
                 if (!args[0].equalsIgnoreCase("check")) return false;
                 try {
-                    Util.sendPermissionMessage(sender, multiplierManager.getMultiplierPermissions(Bukkit.getPlayer(args[1])));
+                    Util.sendPermissionMessage(sender, multiplierManager.getStringsForPlayerPermCheck(Bukkit.getPlayer(args[1])));
                     return true;
                 } catch (Exception e) {
                     sender.sendMessage(ChatColor.RED + "Player not found.");
