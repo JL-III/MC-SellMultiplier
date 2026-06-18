@@ -57,3 +57,11 @@ sell-multipliers:
   community-goal-4: 0.10
   community-goal-5: 0.10
 ```
+
+### Running a test server
+Launch a local Paper server with the freshly built plugin already installed:
+```
+mvn -Prun verify        # build, then download/boot Paper with the plugin
+# or, equivalently:
+bash scripts/run-server.sh
+```
