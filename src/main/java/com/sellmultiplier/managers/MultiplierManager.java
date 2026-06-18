@@ -1,6 +1,7 @@
 package com.sellmultiplier.managers;
 
 import com.sellmultiplier.utils.Multiplier;
+import com.sellmultiplier.utils.Util;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -39,12 +40,21 @@ public class MultiplierManager {
         defaultBonus = BigDecimal.valueOf(config.getDouble("default-bonus", 0.10));
 
         ConfigurationSection section = config.getConfigurationSection("sell-multipliers");
-        if (section != null) {
-            for (String key : section.getKeys(false)) {
-                bonuses.put(
-                        key.toLowerCase(Locale.ROOT), BigDecimal.valueOf(section.getDouble(key)));
-            }
+        if (section == null) {
+            Util.log("No 'sell-multipliers' section in config.yml; every sell.multiplier.* "
+                    + "permission will fall back to the default bonus of " + defaultBonus + ".");
+            return;
         }
+
+        for (String key : section.getKeys(false)) {
+            if (!section.isDouble(key) && !section.isInt(key)) {
+                Util.log("Ignoring 'sell-multipliers." + key + "': value '" + section.get(key)
+                        + "' is not a number.");
+                continue;
+            }
+            bonuses.put(key.toLowerCase(Locale.ROOT), BigDecimal.valueOf(section.getDouble(key)));
+        }
+        Util.log("Loaded " + bonuses.size() + " sell multiplier(s) from config.");
     }
 
     /**
