@@ -6,6 +6,10 @@
 # Bonuses are ADDITIVE. A player's sell payout multiplier is:
 #     1 + (sum of the values of EVERY sell.multiplier.* permission they have)
 #
+# These permissions are granted temporarily -- by events (set manually) and by
+# the TheatriaSessions plugin as the community hits playtime goals. They are NOT
+# assigned per individual rank.
+#
 # Example: a player with sell.multiplier.weekend (0.25) and the five
 #          sell.multiplier.community-goal-N perms (0.10 each) sells for
 #          1 + 0.25 + 0.50 = 1.75  ->  a +75% sell bonus.
@@ -15,14 +19,6 @@
 default-bonus: 0.10
 
 sell-multipliers:
-  # Rank multipliers. Assign exactly ONE per player and make sure ranks do not
-  # inherit the lower ranks in LuckPerms, otherwise they will stack additively.
-  i: 0.10
-  ii: 0.20
-  iii: 0.30
-  iiii: 0.40
-  v: 0.50
-
   # Event multiplier. Set manually for the duration of an event, e.g.:
   #   lp group default permission settemp sell.multiplier.weekend true 2day
   weekend: 0.25

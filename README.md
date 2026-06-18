@@ -48,13 +48,6 @@ sell-multiplier.check.other Allows checking another player's multipliers.
 default-bonus: 0.10
 
 sell-multipliers:
-  # Rank multipliers (assign one per player; do not let ranks inherit lower ranks).
-  i: 0.10
-  ii: 0.20
-  iii: 0.30
-  iiii: 0.40
-  v: 0.50
-
   # Event multiplier (set manually during events).
   weekend: 0.25
 
