@@ -20,7 +20,11 @@ public class SellMultiplier extends JavaPlugin {
         ConfigManager configManager = new ConfigManager(this);
         MultiplierManager multiplierManager = new MultiplierManager(configManager);
 
-        Objects.requireNonNull(getCommand("multiplier")).setExecutor(new Multiplier(multiplierManager));
+        Multiplier multiplierCommand = new Multiplier(multiplierManager, configManager);
+        var multiplierCmd = Objects.requireNonNull(getCommand("multiplier"));
+        multiplierCmd.setExecutor(multiplierCommand);
+        multiplierCmd.setTabCompleter(multiplierCommand);
+
         Bukkit.getPluginManager().registerEvents(new UserBalanceEvent(this, multiplierManager), this);
     }
 }

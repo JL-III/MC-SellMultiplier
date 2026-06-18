@@ -33,12 +33,14 @@ node to grant and *for how long*.
 sell.multiplier.<key>      Grants the bonus configured for <key> (additive).
 sell-multiplier.check.self Allows a player to check their own multipliers.
 sell-multiplier.check.other Allows checking another player's multipliers.
+sell-multiplier.reload     Allows reloading the configuration.
 ```
 
 ## Commands
 ```
 /multiplier               - Lists your current sell multipliers and their values.
 /multiplier check <player> - Lists another player's multipliers.
+/multiplier reload         - Reloads the configuration from disk.
 ```
 
 ## Config

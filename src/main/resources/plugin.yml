@@ -9,4 +9,4 @@ depend: [Essentials]
 commands:
   multiplier:
     description: Gives player their sell hand multiplier
-    usage: §7/multiplier | §7/multiplier check <player>
+    usage: §7/multiplier | §7/multiplier check <player> | §7/multiplier reload
