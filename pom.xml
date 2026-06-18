@@ -23,6 +23,10 @@
             <id>essentials-releases</id>
             <url>https://repo.essentialsx.net/releases/</url>
         </repository>
+        <repository>
+            <id>github-generalutils</id>
+            <url>https://maven.pkg.github.com/JL-III/GeneralUtils</url>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -46,10 +50,39 @@
             <version>2.19.0</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.playtheatria.jl-iii</groupId>
+            <artifactId>generalutils</artifactId>
+            <version>v2.0.0-alpha.10</version>
+        </dependency>
     </dependencies>
 
     <build>
         <finalName>SellMultiplier-${project.version}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.playtheatria.jliii.generalutils</pattern>
+                                    <shadedPattern>com.sellmultiplier.shaded.generalutils</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
     <properties>
