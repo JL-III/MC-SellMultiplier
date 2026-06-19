@@ -14,11 +14,11 @@ public class Util {
     public static final String CHECK_OTHER_PERMISSION = "sell-multiplier.check.other";
     public static final String RELOAD_PERMISSION = "sell-multiplier.reload";
 
-    private static final String BONUS_MESSAGE_TEMPLATE = "<gradient:{mainHexColor}:{secondaryHexColor}>The <color:{accentHexColor}>Oracle's</color:{accentHexColor}> Blessing (<color:{accentHexColor}>+{perm}</color:{accentHexColor}>) has given you an extra <color:{accentHexColor}>(${amount})</color:{accentHexColor}>!";
+    private static final String BONUS_MESSAGE_TEMPLATE = "<gradient:{mainHexColor}:{secondaryHexColor}>The <color:{accentHexColor}>Oracle's</color:{accentHexColor}> Boon (<color:{accentHexColor}>+{perm}</color:{accentHexColor}>) has given you an extra <color:{accentHexColor}>(${amount})</color:{accentHexColor}>!";
 
     // default message
     public static Component getBonusMessage(String perm, BigDecimal amount) {
-        return getBonusMessage(perm, amount, "#ff03a3", "#a303ff", "#ffd119");
+        return getBonusMessage(perm, amount, "#67e9a8", "#1fa86b", "#ffd119");
     };
 
     private static Component getBonusMessage(String perm, BigDecimal amount, String mainHexColor, String secondaryHexColor, String accentHexColor) {
@@ -42,7 +42,7 @@ public class Util {
             sender.sendMessage("§cYou dont have any sell multipliers!");
             return;
         }
-        sender.sendMessage("§dCurrent sell multipliers:");
+        sender.sendMessage("§aCurrent sell multipliers:");
         messages.stream()
                 .map(message -> "§e- " + message)
                 .forEach(sender::sendMessage);
